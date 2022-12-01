@@ -4,7 +4,7 @@ import cors from "cors";
 import express from "express";
 import dbConnection from "./configs/db_connection.js";
 import userRoutes from "./routes/UserRoutes.js";
-import foodRoutes from "./routes/FoodRoutes.js";
+import petRoutes from "./routes/PetRoutes.js";
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -21,7 +21,7 @@ dbConnection(process.env.DATABASE_URL);
 
 // ROUTES
 
-app.use("/api/food", foodRoutes);
+app.use("/api/pet", petRoutes);
 app.use("/api/users", userRoutes);
 
 

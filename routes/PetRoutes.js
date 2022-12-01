@@ -1,6 +1,6 @@
 // Create User Routes
 import express from "express";
-import { addPet, getAllPets, getPetById, updatePet, deletePet, getPetBySharedBy } from "../controllers/PetController.js";
+import { addPet, getAllPets, updatePet, deletePet, getPetBySharedBy } from "../controllers/PetController.js";
 import { protect } from "../middlewares/auth-middleware.js";
 
 const router = express.Router();
@@ -28,7 +28,7 @@ router.route("/update").post(updatePet);
 // @route   GET /api/food/getfoodbysharedby
 // @access  Public
 
-router.route("/getfoodbysharedby/:food_shared_by").get(getPetBySharedBy);
+// router.route("/getfoodbysharedby/:food_shared_by").get(getPetBySharedBy);
 
 
 // @desc    delete food
