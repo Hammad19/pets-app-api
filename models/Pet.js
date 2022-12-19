@@ -75,6 +75,13 @@ const PetSchema = new mongoose.Schema({
         default: true, 
     },
 
+    type: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+
+
     // Food Created Date
     createdAt: {
         type: Date,
