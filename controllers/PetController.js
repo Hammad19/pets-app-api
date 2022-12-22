@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 // @access  Public
 export const addPet = async (req, res) => 
 {
-    const {pet_name, pet_description, pet_price, pet_image, pet_category,pet_quantity,pet_shared_by, is_free} = req.body;
+    const {pet_name, pet_description, pet_price, pet_image, pet_category,pet_quantity,pet_shared_by,type} = req.body;
     try 
     {
         const pet = await Pet.create({
@@ -19,8 +19,10 @@ export const addPet = async (req, res) =>
             pet_category,
             pet_quantity,
             pet_shared_by,
+            type,
             is_active: true,
             is_deleted: false,
+            
         });
         if (pet) 
         {
@@ -63,9 +65,7 @@ export const addPet = async (req, res) =>
 export const getAllPets = async (req, res) =>
 {
 
-    //return all pets that are not deleted and active
-
-
+    //return all pets that are not deleted and are active and is available with owner email
     try 
     {
         const pet = await Pet.find({is_deleted: false , is_active: true , is_available: true});
@@ -148,14 +148,14 @@ export const updatePet = async (req, res) =>
             pet.pet_category = pet_category;
             pet.pet_quantity = pet_quantity;
             pet.pet_shared_by = pet_shared_by;
-            pet.is_free = is_free;
+            // pet.is_free = is_free;
             pet.is_active = true;
             pet.is_deleted = false;
             pet.save();
             res.status(200).json({
                 message: "Pet updated successfully",
                 success: true,
-                food: food,
+                food: pet,
             });
         }
         else

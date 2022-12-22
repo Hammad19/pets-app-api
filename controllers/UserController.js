@@ -88,6 +88,7 @@ export const loginUser = async (req, res) => {
         user: {
           id: user._id,
           email: user.email,
+          first_name: user.first_name,
           accounttype: user.accounttype,
         },
       });
