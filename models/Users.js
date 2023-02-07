@@ -34,6 +34,14 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+
+    reviews: [  // Array of Review IDs
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "review",
+        },
+    ],
+    
     createdAt: {
         type: Date,
         default: Date.now,
