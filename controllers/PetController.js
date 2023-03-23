@@ -3,14 +3,13 @@ import Pet from "../models/Pet.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-// @desc    Add a new food
+// const Category = require("../models/category")
+// @desc    Add a new pet
 // @route   POST http://localhost:8000/api/pet/add
 // @access  Public
-export const addPet = async (req, res) => 
-{
-    const {pet_name, pet_description, pet_price, pet_image, pet_category,pet_quantity,pet_shared_by,type} = req.body;
-    try 
-    {
+export const addPet = async (req, res) => {
+    const { pet_name, pet_description, pet_price, pet_image, pet_category, pet_quantity, pet_shared_by, type } = req.body;
+    try {
         const pet = await Pet.create({
             pet_name,
             pet_description,
@@ -22,14 +21,13 @@ export const addPet = async (req, res) =>
             type,
             is_active: true,
             is_deleted: false,
-            
+
         });
-        if (pet) 
-        {
+        if (pet) {
             res.status(200).json({
-                message: "Pet added successfully",
+                message: "Pet added successfully!",
                 success: true,
-                food: {
+                petItem: {
                     id: pet._id,
                     pet_name: pet.pet_name,
                     pet_description: pet.pet_description,
@@ -43,15 +41,13 @@ export const addPet = async (req, res) =>
 
                 },
             });
-        } 
-        else 
-        {
+        }
+        else {
             res.status(400);
             throw new Error("Invalid pet data");
         }
-    } 
-    catch (error) 
-    {
+    }
+    catch (error) {
         res.status(400).json({
             message: error.message,
             success: false,
@@ -59,32 +55,27 @@ export const addPet = async (req, res) =>
     }
 }
 
-// @desc    Get all food
-// @route   GET http://localhost:8080/api/food/getall
+// @desc    Get all pet
+// @route   GET http://localhost:8080/api/pet/getall
 // @access  Public
-export const getAllPets = async (req, res) =>
-{
+export const getAllPets = async (req, res) => {
 
     //return all pets that are not deleted and are active and is available with owner email
-    try 
-    {
-        const pet = await Pet.find({is_deleted: false , is_active: true , is_available: true});
-        if (pet) 
-        {
+    try {
+        const pet = await Pet.find({ is_deleted: false, is_active: true, is_available: true });
+        if (pet) {
             res.status(200).json({
-                message: "All pets fetched successfully",
+                message: "All pets fetched successfully!",
                 success: true,
                 pet: pet,
             });
-        } 
-        else 
-        {
+        }
+        else {
             res.status(400);
             throw new Error("Invalid pet data");
         }
-    } 
-    catch (error) 
-    {
+    }
+    catch (error) {
         res.status(400).json({
             message: error.message,
             success: false,
@@ -92,36 +83,31 @@ export const getAllPets = async (req, res) =>
     }
 }
 
-// @desc    delete food
-// @route   DELETE http://localhost:8000/api/food/delete
+// @desc    delete pet
+// @route   DELETE http://localhost:8000/api/pet/delete
 // @access  Public
-export const deletePet = async (req, res) =>
-{
+export const deletePet = async (req, res) => {
     //set is deleted to true where id = req.params.id
 
 
     console.log(req.params._id);
-    try
-    {
+    try {
         const pet = await Pet.findById(req.params._id);
-        if (pet)
-        {
+        if (pet) {
             pet.is_deleted = true;
             pet.save();
             res.status(200).json({
-                message: "Pet deleted successfully",
+                message: "Pet deleted successfully!",
                 success: true,
                 pet: pet,
             });
         }
-        else
-        {
+        else {
             res.status(400);
             throw new Error("Invalid pet data");
         }
     }
-    catch (error)
-    {
+    catch (error) {
         res.status(400).json({
             message: error.message,
             success: false,
@@ -130,17 +116,14 @@ export const deletePet = async (req, res) =>
 
 }
 
-// @desc    Update a food
-// @route   PUT http://localhost:8000/api/food/update
+// @desc    Update a pet
+// @route   PUT http://localhost:8000/api/pet/update
 // @access  Public
-export const updatePet = async (req, res) =>
-{
-    const {_id , pet_name, pet_description, pet_price, pet_image, pet_category,pet_quantity,pet_shared_by} = req.body;
-    try
-    {
+export const updatePet = async (req, res) => {
+    const { _id, pet_name, pet_description, pet_price, pet_image, pet_category, pet_quantity, pet_shared_by } = req.body;
+    try {
         const pet = await Pet.findById(_id);
-        if (pet)
-        {
+        if (pet) {
             pet.pet_name = pet_name;
             pet.pet_description = pet_description;
             pet.pet_price = pet_price;
@@ -153,9 +136,75 @@ export const updatePet = async (req, res) =>
             pet.is_deleted = false;
             pet.save();
             res.status(200).json({
-                message: "Pet updated successfully",
+                message: "Pet updated successfully!",
                 success: true,
-                food: pet,
+                petItem: pet,
+            });
+        }
+        else {
+            res.status(400);
+            throw new Error("Invalid pet data");
+        }
+    }
+    catch (error) {
+        res.status(400).json({
+            message: error.message,
+            success: false,
+        });
+    }
+
+}
+
+// @desc    getPetbysharedby
+// @route   GET http://localhost:8000/api/pet/getpetbysharedby
+// @access  Public
+
+//@desc getpetbysharedby
+// @route   GET /api/pet/getpetbysharedby
+// @access  Public
+export const getPetBySharedBy = async (req, res) => {
+    const { pet_shared_by } = req.params;
+    try {
+        //return all pets shared by a particular user where is_deleted = false
+        const pet = await Pet.find({ pet_shared_by: pet_shared_by, is_deleted: false });
+
+        //if pet is an empty array, then no pet is shared by the user
+        if (pet) {
+            res.status(200).json({
+                message: "Pet fetched successfully!",
+                success: true,
+                pet: pet,
+            });
+        }
+
+        else {
+            res.status(400);
+            throw new Error("Invalid pet data");
+        }
+    }
+    catch (error) {
+        res.status(400).json({
+            message: error.message,
+            success: false,
+        });
+    }
+}
+
+
+
+
+export const getFoodByType = async (req, res) =>
+{
+    const {is_free} = req.params;
+    try
+    {
+        const food = await Food.find({is_free: is_free, is_deleted: false, is_active: true});
+        if (food)
+        {
+            res.status(200).json({
+                message: "Food fetched successfully",
+                success: true,
+                food: food,
             });
         }
         else
@@ -171,39 +220,32 @@ export const updatePet = async (req, res) =>
             success: false,
         });
     }
-
 }
 
 
-// @desc    getfoodbysharedby
-// @route   GET http://localhost:8000/api/food/getfoodbysharedby
-// @access  Public
+//Search foods by name like
+// @desc    searchfoodbyname
 
-//@desc getfoodbysharedby
-// @route   GET /api/food/getfoodbysharedby
+// @route   GET http://localhost:8000/api/food/searchfoodbyname
 // @access  Public
-export const getPetBySharedBy = async (req, res) =>
+export const searchPetByName = async (req, res) =>
 {
-    const {pet_shared_by} = req.params;
+    const {pet_name} = req.params;
     try
     {
-        //return all foods shared by a particular user where is_deleted = false
-        const pet = await Pet.find({pet_shared_by: pet_shared_by, is_deleted: false});
-
-        //if food is an empty array, then no food is shared by the user
+        const pet = await Pet.find({pet_name: {$regex: pet_name, $options: "i"}, is_deleted: false, is_active: true});
         if (pet)
         {
             res.status(200).json({
-                message: "Pet fetched successfully",
+                message: "Food fetched successfully",
                 success: true,
                 pet: pet,
             });
-        } 
-
-        else 
+        }
+        else
         {
             res.status(400);
-            throw new Error("Invalid pet data");
+            throw new Error("Invalid food data");
         }
     }
     catch (error)
@@ -214,7 +256,3 @@ export const getPetBySharedBy = async (req, res) =>
         });
     }
 }
-
-
-
-

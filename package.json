@@ -1,5 +1,5 @@
 {
-  "name": "share-your-meal-api",
+  "name": "the-pets-corner-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/"
   },
-  "author": "Hammad Waseem, Uzair Ahmed",
+  "author": "Zunaira Ahmed, Rabia Meryam",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/"

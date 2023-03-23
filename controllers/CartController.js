@@ -1,11 +1,18 @@
 import Cart from "../models/Cart.js";
+import Pet from "../models/Pet.js";
 
 export const addToCart = async (req, res) => {
+    
   //check if the cart already exists for the user
     const {pet,accessory,user } = req.body;
     try {
-        const cart = await Cart.findOne
-        ({orderedBy: user});
+        const cart = await Cart.findOne({orderedBy: user});
+        if (cart) {
+            //check if the food_shared_by is same as ordered_by
+            if (cart.pet_shared_by == orderedBy) {
+              res.status(400);
+              throw new Error("You cannot order your own pet");
+            }
         if (cart) {
             //check if pet is already there in cart
             let promise = cart.pets.find((c) => c.pet == pet);
@@ -23,7 +30,7 @@ export const addToCart = async (req, res) => {
                     }
                 }
                 );
-            } else {
+            }} else {
                 //add the pet with quantity 1
                 Cart.findOneAndUpdate(
                     { orderedBy: user },

@@ -164,10 +164,10 @@ export const getAccessoriesBySharedBy = async (req, res) =>
     const {accessories_shared_by} = req.params;
     try
     {
-        //return all foods shared by a particular user where is_deleted = false
+        //return all pets shared by a particular user where is_deleted = false
         const accessory = await Accessories.find({accessories_shared_by: accessories_shared_by, is_deleted: false});
 
-        //if food is an empty array, then no food is shared by the user
+        //if pet is an empty array, then no pet is shared by the user
         if (accessory)
         {
             res.status(200).json({
