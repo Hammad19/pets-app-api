@@ -64,34 +64,10 @@ export const getAllAccessories = async (req, res) => {
       is_active: true,
     });
     if (accessories) {
-      //empty array
-      const accessoriesarray = [];
-      //loop through all accessories
-      for (let i = 0; i < accessories.length; i++) {
-        //get user by accessories shared by
-        const phone_number = await User.findOne({
-          email: accessories[i].accessories_shared_by,
-        });
-
-        accessories.push({
-          id: accessories[i]._id,
-          accessories_name: accessories[i].accessories_name,
-          accessories_description: accessories[i].accessories_description,
-          accessories_price: accessories[i].accessories_price,
-          accessories_image: accessories[i].accessories_image,
-          accessories_category: accessories[i].accessories_category,
-          accessories_quantity: accessories[i].accessories_quantity,
-          accessories_shared_by: accessories[i].accessories_shared_by,
-          is_active: accessories[i].is_active,
-          is_deleted: accessories[i].is_deleted,
-          phone_number: phone_number.phoneNumber,
-        });
-      }
-
       res.status(200).json({
         message: "All Accessories fetched successfully",
         success: true,
-        accessories: accessoriesarray,
+        accessories: accessories,
       });
     } else {
       res.status(400);
