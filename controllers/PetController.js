@@ -2,6 +2,7 @@
 import Pet from "../models/Pet.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import User from "../models/Users.js";
 
 // const Category = require("../models/category")
 // @desc    Add a new pet
@@ -17,6 +18,7 @@ export const addPet = async (req, res) => {
     pet_quantity,
     pet_shared_by,
     type,
+    phone_number,
   } = req.body;
   try {
     const pet = await Pet.create({
@@ -30,6 +32,7 @@ export const addPet = async (req, res) => {
       type,
       is_active: true,
       is_deleted: false,
+      phone_number,
     });
     if (pet) {
       res.status(200).json({
@@ -46,6 +49,7 @@ export const addPet = async (req, res) => {
           pet_shared_by: pet.pet_shared_by,
           is_active: pet.is_active,
           is_available: pet.is_available,
+          phone_number: pet.phone_number,
         },
       });
     } else {
@@ -181,8 +185,9 @@ export const getPetBySharedBy = async (req, res) => {
 
     //if pet is an empty array, then no pet is shared by the user
     if (pet) {
-      res.status(200).json({
-        message: "Pet fetched successfully!",
+      //return petItems array
+      return res.status(200).json({
+        message: "Pets fetched successfully",
         success: true,
         pet: pet,
       });
