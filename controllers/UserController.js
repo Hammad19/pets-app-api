@@ -7,7 +7,14 @@ import jwt from "jsonwebtoken";
 // @route   POST http://localhost:8000/api/users/signup
 // @access  Public
 export const registerUser = async (req, res) => {
-  const {first_name, email, password, confirm_password, accounttype} = req.body;
+  const {
+    first_name,
+    email,
+    password,
+    confirm_password,
+    accounttype,
+    phone_number,
+  } = req.body;
 
   try {
     // check if confirm password matches password else throw error
@@ -32,14 +39,14 @@ export const registerUser = async (req, res) => {
       first_name,
       email,
       password: password_hash,
-      accounttype
+      accounttype,
+      phoneNumber: phone_number,
     });
 
     // create token for the user
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, 
-      {
-        expiresIn: process.env.JWT_EXPIRE,
-      });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRE,
+    });
 
     if (user) {
       res.status(200).json({
@@ -50,6 +57,7 @@ export const registerUser = async (req, res) => {
           id: user._id,
           email: user.email,
           accounttype: user.accounttype,
+          phone_number: user.phoneNumber,
         },
       });
     } else {
@@ -109,149 +117,149 @@ export const loginUser = async (req, res) => {
 // @route   POST /api/users/forgotpassword
 // @access  Public
 export const forgotPassword = async (req, res) => {
-    const { email } = req.body;
-    
-    try {
-        // Check if user exists
-        const user = await User.findOne({ email });
-    
-        if (user) {
-        // create token for the user
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: process.env.JWT_EXPIRE,
+  const { email } = req.body;
+
+  try {
+    // Check if user exists
+    const user = await User.findOne({ email });
+
+    if (user) {
+      // create token for the user
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE,
+      });
+
+      // send email to user
+      const resetUrl = `${req.protocol}://${req.get(
+        "host"
+      )}/api/users/resetpassword/${token}`;
+
+      const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
+
+      try {
+        await sendEmail({
+          email: user.email,
+          subject: "Password reset token",
+          message,
         });
-    
-        // send email to user
-        const resetUrl = `${req.protocol}://${req.get(
-            "host"
-        )}/api/users/resetpassword/${token}`;
-    
-        const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
-    
-        try {
-            await sendEmail({
-            email: user.email,
-            subject: "Password reset token",
-            message,
-            });
-    
-            res.status(200).json({
-            message: "Email sent",
-            success: true,
-            });
-        } catch (error) {
-            user.resetPasswordToken = undefined;
-            user.resetPasswordExpire = undefined;
-    
-            await user.save({ validateBeforeSave: false });
-    
-            res.status(500);
-            throw new Error("Email could not be sent");
-        }
-        } else {
-        res.status(401);
-        throw new Error("Invalid email");
-        }
-    } catch (error) {
-        res.status(400).json({
-        status: "failed",
-        success: false,
-        message: error.message,
+
+        res.status(200).json({
+          message: "Email sent",
+          success: true,
         });
+      } catch (error) {
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+
+        await user.save({ validateBeforeSave: false });
+
+        res.status(500);
+        throw new Error("Email could not be sent");
+      }
+    } else {
+      res.status(401);
+      throw new Error("Invalid email");
     }
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 // @desc    reset password
 // @route   PUT /api/users/resetpassword/:resettoken
 // @access  Public
 export const resetPassword = async (req, res) => {
-    const { password, confirm_password } = req.body;
+  const { password, confirm_password } = req.body;
 
-    const resetPasswordToken = crypto
+  const resetPasswordToken = crypto
     .createHash("sha256")
     .update(req.params.resettoken)
     .digest("hex");
 
-    try {
-        // Check if user exists
-        const user = await User.findOne({
-        resetPasswordToken,
-        resetPasswordExpire: { $gt: Date.now() },
-        });
+  try {
+    // Check if user exists
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
 
-        if (user) {
-        // set new password
-        user.password = req.body.password;
-        user.confirm_password = req.body.confirm_password;
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpire = undefined;
+    if (user) {
+      // set new password
+      user.password = req.body.password;
+      user.confirm_password = req.body.confirm_password;
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
 
-        // create password hash for the user
-        const password_salt = await bcrypt.genSalt(10);
-        const password_hash = await bcrypt.hash(user.password, password_salt);
+      // create password hash for the user
+      const password_salt = await bcrypt.genSalt(10);
+      const password_hash = await bcrypt.hash(user.password, password_salt);
 
-        user.password = password_hash;
+      user.password = password_hash;
 
-        await user.save();
+      await user.save();
 
-        res.status(200).json({
-            message: "Password reset success",
-            success: true,
-        });
-        } else {
-        res.status(401);
-        throw new Error("Invalid token");
-        }
-    } catch (error) {
-        res.status(400).json({
-        status: "failed",
-        success: false,
-        message: error.message,
-        });
+      res.status(200).json({
+        message: "Password reset success",
+        success: true,
+      });
+    } else {
+      res.status(401);
+      throw new Error("Invalid token");
     }
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 // @desc    change password
 // @route   PUT /api/users/changepassword
 // @access  Private
 export const changePassword = async (req, res) => {
-    const { current_password, new_password, confirm_password } = req.body;
+  const { current_password, new_password, confirm_password } = req.body;
 
-    try {
-        // Check if password matches else throw error
-        if (confirm_password !== new_password) {
-            throw new Error("Passwords do not match");
-        }
-
-        // Check if user exists
-        const user = await User.findById(req.user.id).select("+password");
-
-        if (user && (await bcrypt.compare(current_password, user.password))) {
-        // set new password
-        user.password = new_password;
-        user.confirm_password = confirm_password;
-
-        // create password hash for the user
-        const password_salt = await bcrypt.genSalt(10);
-        const password_hash = await bcrypt.hash(user.password, password_salt);
-
-        user.password = password_hash;
-
-        await user.save();
-
-        res.status(200).json({
-            message: "Password changed successfully",
-            success: true,
-        });
-        } else {
-        res.status(401);
-        throw new Error("Invalid current password");
-        }
-    } catch (error) {
-        res.status(400).json({
-        status: "failed",
-        success: false,
-        message: error.message,
-        });
+  try {
+    // Check if password matches else throw error
+    if (confirm_password !== new_password) {
+      throw new Error("Passwords do not match");
     }
+
+    // Check if user exists
+    const user = await User.findById(req.user.id).select("+password");
+
+    if (user && (await bcrypt.compare(current_password, user.password))) {
+      // set new password
+      user.password = new_password;
+      user.confirm_password = confirm_password;
+
+      // create password hash for the user
+      const password_salt = await bcrypt.genSalt(10);
+      const password_hash = await bcrypt.hash(user.password, password_salt);
+
+      user.password = password_hash;
+
+      await user.save();
+
+      res.status(200).json({
+        message: "Password changed successfully",
+        success: true,
+      });
+    } else {
+      res.status(401);
+      throw new Error("Invalid current password");
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      success: false,
+      message: error.message,
+    });
+  }
 };
