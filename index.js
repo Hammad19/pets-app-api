@@ -8,6 +8,7 @@ import petRoutes from "./routes/PetRoutes.js";
 import accessoriesRoutes from "./routes/AccessoriesRoutes.js";
 import cartRoutes from "./routes/CartRoutes.js";
 import rev from "./routes/ReviewRoute.js";
+import imageRoutes from "./routes/ImageRoutes.js";
 import orderRoutes from "./routes/OrderRoutes.js";
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -25,7 +26,7 @@ dbConnection(process.env.DATABASE_URL);
 
 // ROUTES
 
-
+app.use("/api/images", imageRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/pet", petRoutes);
 app.use("/api/accessories", accessoriesRoutes);
