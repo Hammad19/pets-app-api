@@ -1,6 +1,7 @@
 import Pet from "../models/Pet.js";
 import Users from "../models/Users.js";
 import Order from "../models/Order.js";
+import Notifications from "../models/Notifications.js";
 
 // @desc    Get all ordered food by a user
 // @route   GET /api/food/ordered
@@ -37,6 +38,11 @@ export const orderFood = async (req, res) => {
 
     const pet = await Pet.findById({ _id: order_pet_id });
 
+    if (order_quantity <= 0) {
+      res.status(400);
+      throw new Error("Order quantity cannot be 0");
+    }
+
     if (pet) {
       //check if the food_shared_by is same as ordered_by
       if (pet.pet_shared_by == ordered_by) {
@@ -47,71 +53,117 @@ export const orderFood = async (req, res) => {
       //check quantity
       if (pet.pet_quantity >= order_quantity) {
         //check if food is free
-       // if (food.is_free) {
-          //check if user has already requested for the food
-          const order = await Order.findOne({
-            order_pet_id: order_pet_id,
-            ordered_by: ordered_by,
-          });
-          if (order) {
-            res.status(400);
-            throw new Error(
-              "You have already requested for this food Please wait for the owner to accept your request"
-            );
-          } else {
-            //place order by pending status
-            const order = new Order({
-              order_pet_id,
-              order_name: pet.pet_name,
-              order_description: pet.pet_description,
-              order_price: 0,
-              order_image: pet.pet_image,
-              order_category: pet.pet_category,
-              order_quantity,
-              order_shared_by: pet.pet_shared_by,
-              //order_location: food.food_location,
-              //is_free: food.is_free,
-              is_active: true,
-              ordered_by,
-              order_status: "pending",
-            });
-            order.save();
-            res.status(200).json({
-              message: "Order Requested successfully",
-              success: true,
-              order,
-            });
-          }
+        // if (food.is_free) {
+        //check if user has already requested for the food
+        const order = await Order.findOne({
+          order_pet_id: order_pet_id,
+          ordered_by: ordered_by,
+        });
+        if (order) {
+          res.status(400);
+          throw new Error(
+            "You have already requested for this food Please wait for the owner to accept your request"
+          );
         } else {
-          pet.pet_quantity = pet.pet_quantity - order_quantity;
-          pet.save();
-          //place food order by placed status
+          //place order by pending status
           const order = new Order({
             order_pet_id,
             order_name: pet.pet_name,
             order_description: pet.pet_description,
-            order_price: pet.pet_price * order_quantity,
+            order_price: 0,
             order_image: pet.pet_image,
             order_category: pet.pet_category,
             order_quantity,
             order_shared_by: pet.pet_shared_by,
-           //order_location: food.food_location,
+            //order_location: food.food_location,
             //is_free: food.is_free,
             is_active: true,
             ordered_by,
-            order_status: "placed",
+            order_status: "pending",
           });
           order.save();
+
+          // issue a notification here
+          // send notification to ordered by
+
+          const notifyToSharedBy = new Notifications({
+            user_email: food.food_shared_by,
+            message: "You have a new order request for your food item",
+            title: "New Order Request",
+            notification_image: order.order_image,
+          });
+
+          notifyToSharedBy.save();
+
+          //send notification to orderedby
+
+          const notifyToOrderedBy = new Notifications({
+            user_email: ordered_by,
+            message: "Your order request has been placed successfully",
+            title: "Order Requested",
+            notification_image: order.order_image,
+          });
+
+          notifyToOrderedBy.save();
+
           res.status(200).json({
-            message: "Order placed successfully",
+            message: "Order Requested successfully",
             success: true,
             order,
           });
         }
       } else {
-        res.status(400);
-        throw new Error("Insufficient quantity");
+        pet.pet_quantity = pet.pet_quantity - order_quantity;
+        pet.save();
+        //place food order by placed status
+        const order = new Order({
+          order_pet_id,
+          order_name: pet.pet_name,
+          order_description: pet.pet_description,
+          order_price: pet.pet_price * order_quantity,
+          order_image: pet.pet_image,
+          order_category: pet.pet_category,
+          order_quantity,
+          order_shared_by: pet.pet_shared_by,
+          //order_location: food.food_location,
+          //is_free: food.is_free,
+          is_active: true,
+          ordered_by,
+          order_status: "placed",
+        });
+        order.save();
+
+        //send notification to both
+
+        const notifyToSharedBy = new Notifications({
+          user_email: food.food_shared_by,
+          message: "You have a new order for your food item by " + ordered_by,
+          title: "New Order",
+          notification_image: order.order_image,
+        });
+
+        notifyToSharedBy.save();
+
+        //send notification to orderedby
+        const notifyToOrderedBy = new Notifications({
+          user_email: ordered_by,
+          message: "Your order has been placed successfully",
+          title: "Order Placed",
+          notification_image: order.order_image,
+        });
+
+        notifyToOrderedBy.save();
+
+        res.status(200).json({
+          message: "Order placed successfully",
+          success: true,
+          order,
+        });
       }
+    } else {
+      res.status(400);
+      throw new Error("Insufficient quantity");
+    }
     // } else {
     //   res.status(400);
     //   throw new Error("Invalid food data");
@@ -124,139 +176,179 @@ export const orderFood = async (req, res) => {
   }
 };
 
-// // @desc    accept order
-// // @route   POST /api/food/acceptorder
-// // @access  Public
+// @desc    accept order
+// @route   POST /api/food/acceptorder
+// @access  Public
 
-// export const acceptOrder = async (req, res) => {
-//   try {
-//     const { order_id, order_pet_id, order_quantity } = req.body;
+export const acceptOrder = async (req, res) => {
+  try {
+    const { order_id, order_pet_id, order_quantity } = req.body;
 
-//     const order = await Order.findById({ _id: order_id });
-//     if (order) {
-//       //check if order is pending
-//       if (order.order_status === "pending") {
-//         //check if food quantity is sufficient
-//         const food = await Food.findById({ _id: order_pet_id });
-//         if (food) {
-//           if (food.food_quantity >= order_quantity) {
-//             //deduct food quantity
-//             food.food_quantity = food.food_quantity - order_quantity;
-//             food.save();
-//             //update order status to placed
-//             order.order_status = "placed";
-//             order.save();
-//             res.status(200).json({
-//               message: "Order accepted successfully",
-//               success: true,
-//               order,
-//             });
-//           } else {
-//             res.status(400);
-//             throw new Error("Insufficient quantity");
-//           }
-//         } else {
-//           res.status(400);
-//           throw new Error("Invalid food data");
-//         }
-//       } else {
-//         res.status(400);
-//         throw new Error("Order already accepted");
-//       }
-//     } else {
-//       res.status(400);
-//       throw new Error("Invalid order data");
-//     }
-//   } catch (error) {
-//     res.status(400).json({
-//       message: error.message,
-//       success: false,
-//     });
-//   }
-// };
+    const order = await Order.findById({ _id: order_id });
+    if (order) {
+      //check if order is pending
+      if (order.order_status === "pending") {
+        //check if food quantity is sufficient
+        const pet = await Pet.findById({ _id: order_pet_id });
+        if (pet) {
+          if (pet.pet_quantity >= order_quantity) {
+            //deduct food quantity
+            pet.pet_quantity = pet.pet_quantity - order_quantity;
+            pet.save();
+            //update order status to placed
+            order.order_status = "placed";
+            order.save();
 
-// // @desc    reject order
-// // @route   POST /api/food/rejectorder
-// // @access  Public
+             //send a notification to ordered_by
 
-// export const rejectOrder = async (req, res) => {
-//   try {
-//     const { order_id, order_pet_id, order_quantity } = req.body;
+             const notifyToOrderedBy = new Notifications({
+              user_email: order.ordered_by,
+              message: "Your order has been accepted successfully",
+              title: "Order Accepted",
+              notification_image: order.order_image,
+            });
+            await notifyToOrderedBy.save();
 
-//     const order = await Order.findById({ _id: order_id });
-//     if (order) {
-//       //check if order is pending
-//       if (order.order_status === "pending") {
-//         //update order status to rejected
-//         order.order_status = "rejected";
-//         order.save();
-//         res.status(200).json({
-//           message: "Order rejected successfully",
-//           success: true,
-//           order,
-//         });
-//       } else {
-//         res.status(400);
-//         throw new Error("Order already accepted");
-//       }
-//     } else {
-//       res.status(400);
-//       throw new Error("Invalid order data");
-//     }
-//   } catch (error) {
-//     res.status(400).json({
-//       message: error.message,
-//       success: false,
-//     });
-//   }
-// };
+            //notify to order shared by
+            const notifyToSharedBy = new Notifications({
+              user_email: order.order_shared_by,
+              message: "You have Accepted The Order of " + ordered_by,
+              title: "Order Accepted",
+              notification_image: order.order_image,
+            });
 
-// //get all pending requests by order shared by a user
-// export const getPendingRequests = async (req, res) => {
-//   try {
-//     const order = await Order.find({
-//       order_shared_by: req.params.order_shared_by,
-//       order_status: "pending",
-//     });
+            await notifyToSharedBy.save();
 
-//     if (order) {
-//       res.status(200).json({
-//         message: "Order found",
-//         success: true,
-//         order,
-//       });
-//     } else {
-//       res.status(400);
-//       throw new Error("Order not found");
-//     }
-//   } catch (error) {
-//     res.status(400).json({
-//       message: error.message,
-//       success: false,
-//     });
-//   }
-// };
+            res.status(200).json({
+              message: "Order accepted successfully",
+              success: true,
+              order,
+            });
+          } else {
+            res.status(400);
+            throw new Error("Insufficient quantity");
+          }
+        } else {
+          res.status(400);
+          throw new Error("Invalid food data");
+        }
+      } else {
+        res.status(400);
+        throw new Error("Order already accepted");
+      }
+    } else {
+      res.status(400);
+      throw new Error("Invalid order data");
+    }
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
 
-// //get rejected requests by order shared by a user
-// export const getRejectedRequests = async (req, res) => {
-//   try {
-//     const order = await Order.find({
-//       order_shared_by: req.params.order_shared_by,
-//     });
-//     if (order) {
-//       res.status(200).json({
-//         message: "Order found",
-//         success: true,
-//         order,
-//       });
-//     } else {
-//       res.status(400);
-//       throw new Error("Order not found");
-//     }
-//   } catch (error) {
-//     res.status(400).json({
-//       message: error.message,
-//       success: false,
-//     });
-//   }
-// };
+// @desc    reject order
+// @route   POST /api/food/rejectorder
+// @access  Public
+
+export const rejectOrder = async (req, res) => {
+  try {
+    const { order_id, order_pet_id, order_quantity } = req.body;
+
+    const order = await Order.findById({ _id: order_id });
+    if (order) {
+      //check if order is pending
+      if (order.order_status === "pending") {
+        //update order status to rejected
+        order.order_status = "rejected";
+        order.save();
+
+          //send a notification to ordered_by
+
+          const notifyToOrderedBy = new Notifications({
+            user_email: order.ordered_by,
+            message: "Your order has been rejected",
+            title: "Order Rejected",
+            notification_image: order.order_image,
+          });
+          await notifyToOrderedBy.save();
+          //send a notification to ordered_to
+          const notifyToOrderedTo = new Notifications({
+            user_email: order.order_shared_by,
+            message: "You have rejected the order of " + ordered_by,
+            title: "Order Rejected",
+          });
+  
+          await notifyToOrderedTo.save();
+
+        res.status(200).json({
+          message: "Order rejected successfully",
+          success: true,
+          order,
+        });
+      } else {
+        res.status(400);
+        throw new Error("Order already accepted");
+      }
+    } else {
+      res.status(400);
+      throw new Error("Invalid order data");
+    }
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
+
+//get all pending requests by order shared by a user
+export const getPendingRequests = async (req, res) => {
+  try {
+    const order = await Order.find({
+      order_shared_by: req.params.order_shared_by,
+      order_status: "pending",
+    });
+
+    if (order) {
+      res.status(200).json({
+        message: "Order found",
+        success: true,
+        order,
+      });
+    } else {
+      res.status(400);
+      throw new Error("Order not found");
+    }
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
+
+//get rejected requests by order shared by a user
+export const getRejectedRequests = async (req, res) => {
+  try {
+    const order = await Order.find({
+      order_shared_by: req.params.order_shared_by,
+    });
+    if (order) {
+      res.status(200).json({
+        message: "Order found",
+        success: true,
+        order,
+      });
+    } else {
+      res.status(400);
+      throw new Error("Order not found");
+    }
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+      success: false,
+    });
+  }
+};

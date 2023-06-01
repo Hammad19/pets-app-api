@@ -7,9 +7,11 @@ import userRoutes from "./routes/UserRoutes.js";
 import petRoutes from "./routes/PetRoutes.js";
 import accessoriesRoutes from "./routes/AccessoriesRoutes.js";
 import cartRoutes from "./routes/CartRoutes.js";
-import rev from "./routes/ReviewRoute.js";
 import imageRoutes from "./routes/ImageRoutes.js";
 import orderRoutes from "./routes/OrderRoutes.js";
+import NotificationRoutes from "./routes/NotificationRoutes.js"
+import ReviewRoutes from "./routes/ReviewRoutes.js";
+
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -31,8 +33,10 @@ app.use("/api/users", userRoutes);
 app.use("/api/pet", petRoutes);
 app.use("/api/accessories", accessoriesRoutes);
 app.use("/api/cart", cartRoutes);
-app.use("/api/reviews", rev);
 app.use("/api/orders", orderRoutes);
+app.use("/api/notifications", NotificationRoutes);
+app.use("/api/reviews", ReviewRoutes);
+
 
 
 

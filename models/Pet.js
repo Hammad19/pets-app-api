@@ -79,10 +79,11 @@ const PetSchema = new mongoose.Schema({
     default: true,
   },
 
-  type: {
-    type: String,
-    required: true,
+  pet_rating: {
+    type: Number,
+    required: false,
     trim: true,
+    default: 0,
   },
 
   // Pet Created Date

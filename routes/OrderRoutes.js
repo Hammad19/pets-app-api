@@ -3,10 +3,10 @@ import express from "express";
 import {
   orderFood,
   getOrderedFood,
-//   acceptOrder,
-//   rejectOrder,
-//   getPendingRequests,
-//   getRejectedRequests,
+  acceptOrder,
+  rejectOrder,
+  getPendingRequests,
+  getRejectedRequests,
 } from "../controllers/OrderController.js";
 const router = express.Router();
 
@@ -27,7 +27,7 @@ router.route("/getorderedfood/:ordered_by").get(getOrderedFood);
 // // @route   PUT /api/food/acceptorder
 // // @access  Public
 
-// router.route("/acceptorder").put(acceptOrder);
+router.route("/acceptorder").put(acceptOrder);
 
 // // @desc    reject order
 
@@ -35,14 +35,14 @@ router.route("/getorderedfood/:ordered_by").get(getOrderedFood);
 
 // // @access  Public
 
-// router.route("/rejectorder").put(rejectOrder);
+router.route("/rejectorder").put(rejectOrder);
 
 // // @desc    Get all pending requests
 // // @route   GET /api/food/getpendingrequests
 
 // // @access  Public
 
-// router.route("/getpendingrequests/:order_shared_by").get(getPendingRequests);
+router.route("/getpendingrequests/:order_shared_by").get(getPendingRequests);
 
 // // @desc    Get all rejected requests
 
@@ -50,6 +50,6 @@ router.route("/getorderedfood/:ordered_by").get(getOrderedFood);
 
 // // @access  Public
 
-// router.route("/getrejectedrequests/:order_shared_by").get(getRejectedRequests);
+router.route("/getrejectedrequests/:order_shared_by").get(getRejectedRequests);
 
 export default router;
