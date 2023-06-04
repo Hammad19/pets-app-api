@@ -74,7 +74,7 @@ export const orderFood = async (req, res) => {
               order_pet_id,
               order_name: pet.pet_name,
               order_description: pet.pet_description,
-              order_price: 0,
+              order_price: pet.pet_price * order_quantity,
               order_image: pet.pet_image,
               order_category: pet.pet_category,
               order_quantity,
@@ -83,7 +83,7 @@ export const orderFood = async (req, res) => {
               is_active: true,
               ordered_by,
               order_status: "pending",
-              order_type: "Pets",
+              order_type,
             });
             order.save();
 
@@ -153,7 +153,7 @@ export const orderFood = async (req, res) => {
               order_pet_id,
               order_name: accessory.accessories_name,
               order_description: accessory.accessories_description,
-              order_price: 0,
+              order_price: accessory.accessories_price * order_quantity,
               order_image: accessory.accessories_image,
               order_category: accessory.accessories_category,
               order_quantity,
@@ -161,7 +161,7 @@ export const orderFood = async (req, res) => {
               is_active: true,
               ordered_by,
               order_status: "pending",
-              order_type: "Accessories",
+              order_type,
             });
             order.save();
 
