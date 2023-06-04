@@ -79,7 +79,7 @@ export const orderFood = async (req, res) => {
               order_category: pet.pet_category,
               order_quantity,
               order_shared_by: pet.pet_shared_by,
-
+              is_pickup: false,
               is_active: true,
               ordered_by,
               order_status: "pending",
@@ -162,6 +162,7 @@ export const orderFood = async (req, res) => {
               ordered_by,
               order_status: "pending",
               order_type,
+              is_pickup: false,
             });
             order.save();
 
