@@ -51,6 +51,13 @@ const AccessoriesSchema = new mongoose.Schema({
     trim: true,
   },
 
+  //accessories_rating
+  accessories_rating: {
+    type: Number,
+    required: false,
+    trim: true,
+    default: 0,
+  },
   phone_number: {
     type: String,
     required: true,

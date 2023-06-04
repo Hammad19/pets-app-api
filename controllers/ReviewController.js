@@ -1,3 +1,4 @@
+import Order from "../models/Order.js";
 import Pet from "../models/Pet.js";
 import Review from "../models/Reviews.js";
 import User from "../models/Users.js";
@@ -55,18 +56,37 @@ export const createReview = async (req, res) => {
         });
         average = total / count;
 
-        //update all food_rating shared by this user
-        const updatedFood = await Pet.updateMany(
-          { pet_shared_by: user_email },
-          { $set: { pet_rating: average } }
-        );
+        //find order
+        const order = await Order.findOne({ _id: order });
 
-        if (updatedFood) {
-          res.status(200).json({
-            message: "Review added successfully",
-            success: true,
-            review: newReview,
-          });
+        if (order.order_type === "Pets") {
+          //update all food_rating shared by this user
+          const updatedFood = await Pet.updateMany(
+            { pet_shared_by: user_email },
+            { $set: { pet_rating: average } }
+          );
+
+          if (updatedFood) {
+            res.status(200).json({
+              message: "Review added successfully",
+              success: true,
+              review: newReview,
+            });
+          }
+        } else if (order.order_type === "Accessories") {
+          //update all food_rating shared by this user
+          const updatedFood = await Pet.updateMany(
+            { accessories_shared_by: user_email },
+            { $set: { accessories_rating: average } }
+          );
+
+          if (updatedFood) {
+            res.status(200).json({
+              message: "Review added successfully",
+              success: true,
+              review: newReview,
+            });
+          }
         }
       }
     }
