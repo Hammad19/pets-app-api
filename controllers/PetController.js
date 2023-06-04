@@ -76,6 +76,7 @@ export const getAllPets = async (req, res) => {
       is_available: true,
     });
     if (pet) {
+      console.log(pet);
       res.status(200).json({
         message: "All pets fetched successfully!",
         success: true,
@@ -185,6 +186,7 @@ export const getPetBySharedBy = async (req, res) => {
 
     //if pet is an empty array, then no pet is shared by the user
     if (pet) {
+      //console.log(pet);
       //return petItems array
       return res.status(200).json({
         message: "Pets fetched successfully",

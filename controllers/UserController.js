@@ -40,7 +40,7 @@ export const registerUser = async (req, res) => {
       email,
       password: password_hash,
       accounttype,
-      phoneNumber: phone_number,
+      phone_number: phone_number,
     });
 
     // create token for the user
@@ -57,7 +57,7 @@ export const registerUser = async (req, res) => {
           id: user._id,
           email: user.email,
           accounttype: user.accounttype,
-          phone_number: user.phoneNumber,
+          phone_number: user.phone_number,
         },
       });
     } else {
@@ -89,6 +89,8 @@ export const loginUser = async (req, res) => {
         expiresIn: process.env.JWT_EXPIRE,
       });
 
+      console.log(user);
+
       res.status(200).json({
         message: "User logged in successfully!",
         success: true,
@@ -98,7 +100,7 @@ export const loginUser = async (req, res) => {
           email: user.email,
           first_name: user.first_name,
           accounttype: user.accounttype,
-          phone_number: user.phoneNumber,
+          phone_number: user.phone_number,
         },
       });
     } else {
