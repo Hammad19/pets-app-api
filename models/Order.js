@@ -74,6 +74,13 @@ const OrderSchema = new mongoose.Schema({
     trim: true,
   },
 
+  //order type
+  order_type:{
+    type: String,
+    required: true,
+    trim: true,
+  },
+
   created_at: {
     type: Date,
     default: Date.now,
