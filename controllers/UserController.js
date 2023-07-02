@@ -375,8 +375,8 @@ const sendEmail = async (options) => {
 //verify otp
 export const verifyOtp = async (req, res) => {
   const { email, otp } = req.body;
-  console.log(email)
-  console.log(otp)
+  console.log("email is: "+email)
+  console.log("otp is: " +otp)
   try {
     const user = await User.findOne({ email });
     if (user) {
@@ -388,6 +388,7 @@ export const verifyOtp = async (req, res) => {
         });
       } else {
         res.status(401);
+        
         throw new Error("Invalid OTP");
       }
     } else {
