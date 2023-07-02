@@ -1,10 +1,10 @@
 // Create User Controller
+
+// Create User Controller
 import User from "../models/Users.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-
-
 // @desc    Register a new user
 // @route   POST http://localhost:8000/api/users/signup
 // @access  Public
@@ -375,6 +375,8 @@ const sendEmail = async (options) => {
 //verify otp
 export const verifyOtp = async (req, res) => {
   const { email, otp } = req.body;
+  console.log(email)
+  console.log(otp)
   try {
     const user = await User.findOne({ email });
     if (user) {
