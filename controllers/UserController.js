@@ -290,6 +290,7 @@ export const sendOtpforEmail = async (req, res) => {
           email: user.email,
         });
       } catch (error) {
+        console.log(error)
         res.status(500).json({
           message: "Email could not be sent",
           success: false,
