@@ -2,6 +2,8 @@
 import User from "../models/Users.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
+
 
 // @desc    Register a new user
 // @route   POST http://localhost:8000/api/users/signup
