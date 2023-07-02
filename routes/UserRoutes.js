@@ -23,4 +23,14 @@ router.route("/login").post(loginUser);
 // @access  Private
 router.route("/change-password").post(protect, changePassword);
 
+
+///verify Otp
+// @route POST /api/users/verifyotp
+// @access Public
+
+router.route("/verifyotp").post(verifyOtp);
+
+router.route("/sendotpforemail").post(sendOtpforEmail);
+router.route("/verifyotpforemail").post(verifyOtpForEmail);
+
 export default router;

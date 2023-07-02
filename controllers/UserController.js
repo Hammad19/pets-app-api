@@ -266,3 +266,134 @@ export const changePassword = async (req, res) => {
     });
   }
 };
+//  @desc send otp for email verification
+//  @route POST /api/users/sendotp
+//  @access Public
+export const sendOtpforEmail = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const otp = Math.floor(10000 + Math.random() * 90000);
+      const message = `OTP for Account Verification. Your OTP is ${otp}`;
+      try {
+        await sendEmail({
+          email: user.email,
+          subject: "OTP for Account Verification",
+          message,
+        });
+        user.token = otp;
+        await user.save();
+        res.status(200).json({
+          message: "OTP sent to your email",
+          success: true,
+          email: user.email,
+        });
+      } catch (error) {
+        res.status(500).json({
+          message: "Email could not be sent",
+          success: false,
+        });
+      }
+    } else {
+      res.status(401).json({
+        message: "Invalid email",
+        success: false,
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+//  @desc verify otp for email verification
+//  @route POST /api/users/verifyotpforemail
+//  @access Public
+export const verifyOtpForEmail = async (req, res) => {
+  const { email, otp } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      if (user.token === otp) {
+        user.emailVerified = true;
+        user.token = "";
+        await user.save();
+        res.status(200).json({
+          message: "Email verified successfully",
+          success: true,
+        });
+      } else {
+        res.status(401).json({
+          message: "Invalid OTP",
+          success: false,
+        });
+      }
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// send email function to send email by nodemailer
+const sendEmail = async (options) => {
+  console.log(options);
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+
+    host: "smtp.gmail.com",
+
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_FROM,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_FROM,
+    to: options.email,
+    subject: options.subject,
+    text: options.message,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+//verify otp
+export const verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      if (user.token == otp) {
+        res.status(200).json({
+          message: "OTP verified",
+          success: true,
+          otp: user.token,
+        });
+      } else {
+        res.status(401);
+        throw new Error("Invalid OTP");
+      }
+    } else {
+      res.status(401);
+      throw new Error("This Email Does not Exist");
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      success: false,
+      message: error.message,
+    });
+  }
+};
