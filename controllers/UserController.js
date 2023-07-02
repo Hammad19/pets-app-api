@@ -354,13 +354,13 @@ const sendEmail = async (options) => {
     port: 587,
     secure: false,
     auth: {
-      user: process.env.EMAIL_FROM,
-      pass: process.env.EMAIL_PASSWORD,
+      user: "hammadw3726@gmail.com",
+      pass: "hujbsbpqrwddsmes",
     },
   });
 
   const mailOptions = {
-    from: process.env.EMAIL_FROM,
+    from: "hammadw3726@gmail.com",
     to: options.email,
     subject: options.subject,
     text: options.message,
