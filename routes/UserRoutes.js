@@ -1,6 +1,6 @@
 // Create User Routes
 import express from "express";
-import { registerUser, loginUser, changePassword } from "../controllers/UserController.js";
+import { registerUser, loginUser, changePassword,verifyOtp,verifyOtpForEmail,sendOtpforEmail } from "../controllers/UserController.js";
 import { protect } from "../middlewares/auth-middleware.js";
 
 const router = express.Router();
