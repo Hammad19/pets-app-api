@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import User from "../models/Images.js";
 
 const router = express.Router();
-const DIR = "./public/";
+const DIR = "./publicpetimages/";
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, DIR);
@@ -32,12 +32,12 @@ var upload = multer({
 });
 // User model
 
-router.post("/food-image", upload.single("profileImg"), (req, res, next) => {
+router.post("/pet-image", upload.single("petImg"), (req, res, next) => {
   const url = req.protocol + "://" + req.get("host");
   const user = new User({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
-    profileImg: url + "/public/" + req.file.filename,
+    petImg: url + "/publicpetimages/" + req.file.filename,
   });
   user
     .save()
@@ -46,7 +46,7 @@ router.post("/food-image", upload.single("profileImg"), (req, res, next) => {
         message: "Image Uploaded successfully!",
         userCreated: {
           _id: result._id,
-          profileImg: result.profileImg,
+          petImg: result.petImg,
         },
       });
     })
