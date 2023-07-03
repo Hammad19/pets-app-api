@@ -83,7 +83,7 @@ export const getAllPets = async (req, res) => {
       res.status(200).json({
         message: "All pets fetched successfully!",
         success: true,
-        pets: pets,
+        pet: pets,
       });
     } else {
       res.status(400);
