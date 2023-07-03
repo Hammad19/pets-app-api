@@ -1,6 +1,6 @@
 // Create User Routes
 import express from "express";
-import { registerUser, loginUser, changePassword } from "../controllers/UserController.js";
+import { registerUser, loginUser, changePassword,verifyOtp,verifyOtpForEmail,sendOtpforEmail } from "../controllers/UserController.js";
 import { protect } from "../middlewares/auth-middleware.js";
 
 const router = express.Router();
@@ -22,5 +22,15 @@ router.route("/login").post(loginUser);
 // @route   POST /api/users/change-password
 // @access  Private
 router.route("/change-password").post(protect, changePassword);
+
+
+///verify Otp
+// @route POST /api/users/verifyotp
+// @access Public
+
+router.route("/verifyotp").post(verifyOtp);
+
+router.route("/sendotpforemail").post(sendOtpforEmail);
+router.route("/verifyotpforemail").post(verifyOtpForEmail);
 
 export default router;

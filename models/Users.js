@@ -48,7 +48,12 @@ const UserSchema = new mongoose.Schema({
     required: false,
     trim: true,
   },
-
+  token: {
+    type: String,
+    required: false,
+    default: "",
+    expires: 60,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
