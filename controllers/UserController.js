@@ -293,7 +293,7 @@ export const sendOtpforEmail = async (req, res) => {
           email: user.email,
         });
       } catch (error) {
-        console.log(error)
+        console.log(error);
         res.status(500).json({
           message: "Email could not be sent",
           success: false,
@@ -304,6 +304,82 @@ export const sendOtpforEmail = async (req, res) => {
         message: "Invalid email",
         success: false,
       });
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc reset password
+// @route PUT /api/users/resetpassword
+// @access Public
+// reset password by providing otp to the user
+export const reset_Password = async (req, res) => {
+  const { email, otp, password, confirm_password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    //if otp is expired then throw error
+
+    if (user.token == otp) {
+      if (password === confirm_password) {
+        const password_salt = await bcrypt.genSalt(10);
+        const password_hash = await bcrypt.hash(password, password_salt);
+        user.password = password_hash;
+        user.confirm_password = password_hash;
+        user.token = "";
+        await user.save();
+        res.status(200).json({
+          message: "Password reset success",
+          success: true,
+        });
+      } else {
+        res.status(401);
+        throw new Error("Password and Confirm Password does not match");
+      }
+    } else {
+      res.status(401);
+      throw new Error("Invalid OTP");
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const forgetPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const otp = Math.floor(10000 + Math.random() * 90000);
+      const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Your OTP is ${otp}`;
+      try {
+        await sendEmail({
+          email: user.email,
+          subject: "OTP for Password Reset",
+          message,
+        });
+        user.token = otp;
+        await user.save();
+        res.status(200).json({
+          message: "OTP sent to your email",
+          success: true,
+          email: user.email,
+        });
+      } catch (error) {
+        res.status(500);
+        throw new Error("Email could not be sent");
+      }
+    } else {
+      res.status(401);
+      throw new Error("This Email Does not Exist");
     }
   } catch (error) {
     res.status(400).json({
@@ -376,8 +452,8 @@ const sendEmail = async (options) => {
 //verify otp
 export const verifyOtp = async (req, res) => {
   const { email, otp } = req.body;
-  console.log("email is: "+email)
-  console.log("otp is: " +otp)
+  console.log("email is: " + email);
+  console.log("otp is: " + otp);
   try {
     const user = await User.findOne({ email });
     if (user) {
