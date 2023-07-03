@@ -17,7 +17,6 @@ export const createReview = async (req, res) => {
   //check with id if same user has reveiwed same food
 
   const checkReview = await Review.findOne({
-    user: user,
     ratedBy: ratedBy,
     pet: pet,
   });
