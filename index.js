@@ -11,6 +11,7 @@ import imageRoutes from "./routes/ImageRoutes.js";
 import orderRoutes from "./routes/OrderRoutes.js";
 import NotificationRoutes from "./routes/NotificationRoutes.js";
 import ReviewRoutes from "./routes/ReviewRoutes.js";
+import DoctorRoutes from "./routes/DoctorRoutes.js";
 import paymentApi from "./routes/PaymentRoutes.js";
 
 const app = express();
@@ -36,6 +37,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/notifications", NotificationRoutes);
 app.use("/api/reviews", ReviewRoutes);
 app.use("/api/payment", paymentApi);
+app.use("/api/doctors", DoctorRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`);
