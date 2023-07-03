@@ -83,6 +83,7 @@ export const orderFood = async (req, res) => {
               ordered_by,
               order_status: "pending",
               order_type,
+              is_paid: false,
             });
             order.save();
 
@@ -162,6 +163,7 @@ export const orderFood = async (req, res) => {
               order_status: "pending",
               order_type,
               is_pickup: false,
+              is_paid: false,
             });
             order.save();
 
@@ -214,9 +216,7 @@ export const acceptOrder = async (req, res) => {
     const { order_id, order_pet_id, order_quantity, ordered_by, order_type } =
       req.body;
 
-
-
-      console.log(req.body)
+    console.log(req.body);
     if (order_type === "Pets") {
       const order = await Order.findById({ _id: order_id });
       if (order) {
@@ -396,7 +396,6 @@ export const rejectOrder = async (req, res) => {
   }
 };
 
-
 export const getPendingRequests = async (req, res) => {
   try {
     //get all requests shared by whos status is pending or placed
@@ -446,7 +445,6 @@ export const getRejectedRequests = async (req, res) => {
     });
   }
 };
-
 
 //cenceled order and revert food quantity
 export const cancelOrder = async (req, res) => {
@@ -552,6 +550,60 @@ export const orderPickedUp = async (req, res) => {
 
         res.status(200).json({
           message: "Order picked up successfully",
+          success: true,
+          order,
+        });
+      } else {
+        res.status(400);
+        throw new Error("Order already " + order.order_status);
+      }
+    } else {
+      res.status(400);
+      throw new Error("Invalid order data");
+    }
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
+
+//make an api that just change the order is_paid to true
+
+export const orderPaid = async (req, res) => {
+  try {
+    const { order_id } = req.body;
+
+    const order = await Order.findById({ _id: order_id });
+    if (order) {
+      //check if order is pending
+      if (order.order_status === "placed") {
+        //update order status to picked up
+        order.is_paid = true;
+        order.is_active = false;
+        order.save();
+        console.log(order, "order paid");
+        //send a notification to ordered_by
+
+        const notifyToOrderedBy = new Notifications({
+          user_email: order.ordered_by,
+          message: "Your order has been paid",
+          title: "Order Paid",
+          notification_image: order.order_image,
+        });
+        await notifyToOrderedBy.save();
+        //send a notification to ordered_to
+        const notifyToOrderedTo = new Notifications({
+          user_email: order.order_shared_by,
+          message: "You have paid the order of " + order.order_shared_by,
+          title: "Order Paid",
+        });
+
+        await notifyToOrderedTo.save();
+
+        res.status(200).json({
+          message: "Order paid successfully",
           success: true,
           order,
         });

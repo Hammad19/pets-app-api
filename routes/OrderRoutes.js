@@ -9,6 +9,7 @@ import {
   getRejectedRequests,
   cancelOrder,
   orderPickedUp,
+  orderPaid,
 } from "../controllers/OrderController.js";
 const router = express.Router();
 
@@ -22,7 +23,6 @@ router.route("/orderfood").post(orderFood);
 // @desc    Get all food
 // @route   GET /api/food/get
 // @access  Public
-
 
 // @desc    order picked up
 
@@ -63,7 +63,6 @@ router.route("/getpendingrequests/:order_shared_by").get(getPendingRequests);
 
 router.route("/getrejectedrequests/:order_shared_by").get(getRejectedRequests);
 
-
 // @desc    cancel order
 
 // @route   PUT /api/food/cancelorder
@@ -71,5 +70,7 @@ router.route("/getrejectedrequests/:order_shared_by").get(getRejectedRequests);
 // @access  Public
 
 router.route("/cancelorder").put(cancelOrder);
+
+router.route("/paid").put(orderPaid);
 
 export default router;

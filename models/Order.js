@@ -75,7 +75,7 @@ const OrderSchema = new mongoose.Schema({
   },
 
   //order type
-  order_type:{
+  order_type: {
     type: String,
     required: true,
     trim: true,
@@ -89,6 +89,12 @@ const OrderSchema = new mongoose.Schema({
   updated_at: {
     type: Date,
     default: Date.now,
+  },
+
+  is_paid: {
+    type: Boolean,
+    required: true,
+    trim: true,
   },
 });
 
