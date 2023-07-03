@@ -57,9 +57,9 @@ export const createReview = async (req, res) => {
         average = total / count;
 
         //find order
-        const order = await Order.findOne({ _id: order });
+        const orders = await Order.findOne({ _id: order });
 
-        if (order.order_type === "Pets") {
+        if (orders.order_type === "Pets") {
           //update all food_rating shared by this user
           const updatedFood = await Pet.updateMany(
             { pet_shared_by: user_email },
@@ -73,7 +73,7 @@ export const createReview = async (req, res) => {
               review: newReview,
             });
           }
-        } else if (order.order_type === "Accessories") {
+        } else if (orders.order_type === "Accessories") {
           //update all food_rating shared by this user
           const updatedFood = await Pet.updateMany(
             { accessories_shared_by: user_email },
