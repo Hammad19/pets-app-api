@@ -1,26 +1,36 @@
-import stripe from "../constants/stripe.js";
+import stripe from "stripe";
+
+const stripeInstance = stripe(
+  "sk_test_51LlvcGSJEybDSmwFnaJ9DBmSShhmxwB1u2so68PD2cD2so2qBe9fclt9GGTg32UFz1j6FmqOexHeoozho7KdyvNj00UTJqH6pG"
+);
+
 import express from "express";
 const router = express.Router();
 
-const postStripeCharge = (res) => (stripeErr, stripeRes) => {
-  if (stripeErr) {
-    res.status(500).send({ error: stripeErr });
-  } else {
-    res.status(200).send({ success: stripeRes });
-  }
-};
-
-router.route("/").get((req, res) => {
-  res.send({
-    message: "Hello Stripe checkout server!",
-    timestamp: new Date().toISOString(),
-  });
-});
-
 //post
 
-router.route("/").post((req, res) => {
-  stripe.charges.create(req.body, postStripeCharge(res));
+router.route("/").post(async (req, res) => {
+  // Use an existing Customer ID if this is a returning customer.
+
+  //const { amount, currency } = req.body;
+
+  const customer = await stripeInstance.customers.create();
+  const ephemeralKey = await stripeInstance.ephemeralKeys.create(
+    { customer: customer.id },
+    { apiVersion: "2022-08-01" }
+  );
+  const paymentIntent = await stripeInstance.paymentIntents.create({
+    amount: 100,
+    currency: "INR",
+    customer: customer.id,
+    payment_method_types: ["card"],
+  });
+
+  res.json({
+    paymentIntent: paymentIntent.client_secret,
+    ephemeralKey: ephemeralKey.secret,
+    customer: customer.id,
+  });
 });
 
 export default router;
