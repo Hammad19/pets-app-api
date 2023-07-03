@@ -102,6 +102,7 @@ export const loginUser = async (req, res) => {
           email: user.email,
           first_name: user.first_name,
           accounttype: user.accounttype,
+          emailVerified: user.emailVerified,
           phone_number: user.phone_number,
         },
       });
@@ -388,7 +389,7 @@ export const verifyOtp = async (req, res) => {
         });
       } else {
         res.status(401);
-        
+
         throw new Error("Invalid OTP");
       }
     } else {
