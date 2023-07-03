@@ -1,7 +1,7 @@
 import stripe from "stripe";
 
 const stripeInstance = stripe(
-  "sk_test_51NPgsJSHTV5I3BLldLnpcQPPKBxsFqsu9Ii7u0Cc0Abdg7BxO74LgmXelx76NjKncklajOQJZ6TIcCjlVOvRxMw300eFVdHcZB"
+  "pk_test_51Mqeq8KDY8BdPBdpUFFqFL3hy1MUAkdnzBBqQmMz9HANripV4VGmLcOWM9GkBQWEDo4J2s9ylgaJ0XCIbvvuSh3N00IGVBVP0h"
 );
 
 import express from "express";
