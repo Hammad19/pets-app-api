@@ -9,8 +9,9 @@ import accessoriesRoutes from "./routes/AccessoriesRoutes.js";
 import cartRoutes from "./routes/CartRoutes.js";
 import imageRoutes from "./routes/ImageRoutes.js";
 import orderRoutes from "./routes/OrderRoutes.js";
-import NotificationRoutes from "./routes/NotificationRoutes.js"
+import NotificationRoutes from "./routes/NotificationRoutes.js";
 import ReviewRoutes from "./routes/ReviewRoutes.js";
+import paymentApi from "./routes/PaymentRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -24,8 +25,6 @@ app.use(express.json());
 // DB CONNECTION
 dbConnection(process.env.DATABASE_URL);
 
-
-
 // ROUTES
 
 app.use("/api/images", imageRoutes);
@@ -36,9 +35,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/notifications", NotificationRoutes);
 app.use("/api/reviews", ReviewRoutes);
-
-
-
+app.use("/api/payment", paymentApi);
 
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`);
