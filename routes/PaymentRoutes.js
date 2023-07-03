@@ -12,7 +12,7 @@ const router = express.Router();
 router.route("/").post(async (req, res) => {
   // Use an existing Customer ID if this is a returning customer.
 
-  //const { amount, currency } = req.body;
+  const { amount, currency } = req.body;
 
   const customer = await stripeInstance.customers.create();
   const ephemeralKey = await stripeInstance.ephemeralKeys.create(
@@ -20,8 +20,8 @@ router.route("/").post(async (req, res) => {
     { apiVersion: "2022-08-01" }
   );
   const paymentIntent = await stripeInstance.paymentIntents.create({
-    amount: 100,
-    currency: "INR",
+    amount: amount,
+    currency: currency,
     customer: customer.id,
     payment_method_types: ["card"],
   });

@@ -68,19 +68,22 @@ export const addPet = async (req, res) => {
 // @route   GET http://localhost:8080/api/pet/getall
 // @access  Public
 export const getAllPets = async (req, res) => {
-  //return all pets that are not deleted and are active and is available with owner email
   try {
-    const pet = await Pet.find({
+    const pets = await Pet.find({
       is_deleted: false,
       is_active: true,
       is_available: true,
     });
-    if (pet) {
-      console.log(pet);
+
+    if (pets) {
+      // Sort pets by pet_rating in descending order
+      pets.sort((a, b) => b.pet_rating - a.pet_rating);
+
+      console.log(pets);
       res.status(200).json({
         message: "All pets fetched successfully!",
         success: true,
-        pet: pet,
+        pets: pets,
       });
     } else {
       res.status(400);
