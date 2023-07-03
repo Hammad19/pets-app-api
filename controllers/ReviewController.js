@@ -14,10 +14,11 @@ export const createReview = async (req, res) => {
   const user = await User.findOne({ email: user_email });
   const ratedBy = await User.findOne({ email: ratedBy_email });
 
-  //check with id if same user has reveiwed same food
-
+  //check if the same user has reviewed the same food
   const checkReview = await Review.findOne({
-    ratedBy: ratedBy,
+    user_email: user_email,
+    ratedBy_email: ratedBy_email,
+    order: order,
     pet: pet,
   });
 
